@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// url here is only used by `prisma generate` / `prisma migrate` CLI commands.
+// At runtime the PrismaLibSQL adapter takes over and connects to Turso directly
+// using TURSO_DATABASE_URL + TURSO_AUTH_TOKEN — this value is never used.
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Circular {
+  id           String    @id @default(cuid())
+  title        String
+  source       String
+  url          String    @unique
+  publishedAt  DateTime
+  fetchedAt    DateTime  @default(now())
+  rawText      String
+
+  summary      String?
+  whyItMatters String?
+  actionItems  String?
+  relevance    String?
+  analysed     Boolean   @default(false)
+
+  reviewed     Boolean   @default(false)
+  reviewedAt   DateTime?
+}
