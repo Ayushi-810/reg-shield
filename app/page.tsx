@@ -103,11 +103,16 @@ export default function Home() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const loadCirculars = useCallback(async () => {
+  const fetchingRef = useRef(false);
+  const sourceRef = useRef(source);
+  useEffect(() => { sourceRef.current = source; }, [source]);
+
+  const loadCirculars = useCallback(async (sourceOverride?: typeof source) => {
+    const activeSource = sourceOverride ?? sourceRef.current;
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (source !== "all") params.set("source", source);
+      if (activeSource !== "all") params.set("source", activeSource);
       const res = await fetch(`/api/circulars?${params}`);
       const data = await res.json();
       setGrouped(data);
@@ -115,13 +120,16 @@ export default function Home() {
       console.error("Failed to load circulars:", err);
     }
     setLoading(false);
-  }, [source]);
+  }, []);
 
+  // Re-fetch feed when filter changes, but never during an active fetch
   useEffect(() => {
-    loadCirculars();
-  }, [loadCirculars]);
+    if (fetchingRef.current) return;
+    loadCirculars(source);
+  }, [source, loadCirculars]);
 
   const handleFetch = async () => {
+    fetchingRef.current = true;
     setFetching(true);
     setFetchStatus({ type: "fetching" });
 
@@ -136,9 +144,12 @@ export default function Home() {
         ? `No new circulars found · ${time}`
         : `${data.newCirculars} new circulars fetched · ${data.analysed} analysed · ${time}`;
       setFetchStatus({ type: "success", message: msg });
+      fetchingRef.current = false;
+      // Load with whatever source the user has selected at completion time
       await loadCirculars();
       setTimeout(() => setFetchStatus({ type: "idle" }), 5000);
     } catch {
+      fetchingRef.current = false;
       setFetchStatus({ type: "idle" });
     }
 

@@ -86,6 +86,23 @@ TURSO_AUTH_TOKEN=eyJ...
 
 ---
 
+## Tech Stack
+
+| Technology | Why it's here |
+|------------|---------------|
+| **Next.js 16 (App Router)** | Single deployable unit — UI pages and API route handlers live together; no separate backend process |
+| **React 19** | UI rendering; client components used only where interactivity is needed |
+| **TypeScript** | Shared types across UI and API (e.g. `Circular`, `GroupedCirculars`) keep data contracts explicit |
+| **Prisma 6** | Schema definition and type-safe DB access; `prisma generate` produces the client from `schema.prisma` |
+| **Turso (libSQL)** | Serverless SQLite — low-latency edge DB with a generous free tier; accessed via `@prisma/adapter-libsql` |
+| **Groq SDK** | Inference on `llama-3.3-70b-versatile`; chosen for fast inference speed on large-context regulatory text |
+| **Cheerio** | Lightweight HTML parser for scraping RBI and SEBI listing pages without a headless browser |
+| **Radix UI** | Accessible unstyled primitives (accordion, dialog, scroll-area, toast) that the UI is composed from |
+| **Tailwind CSS 4** | Utility classes for spacing and layout in component files |
+| **Vercel** | Deploy target; `vercel.json` extends the `/api/fetch` route timeout to 180 s to cover full scrape + AI analysis |
+
+---
+
 ## API Routes
 
 | Method | Route | Description |
@@ -96,21 +113,3 @@ TURSO_AUTH_TOKEN=eyJ...
 | `PATCH` | `/api/circulars/[id]/review` | Mark circular as reviewed |
 
 ---
-
-## Deploy (Vercel)
-
-1. Push to GitHub
-2. Import repo in [vercel.com](https://vercel.com)
-3. Add all environment variables from `.env` in Vercel project settings
-4. Deploy — `vercel.json` sets `maxDuration: 180s` for the fetch route
-
-> Turso is the database for both local dev and production. No SQLite, no ephemeral storage issues.
-
----
-
-## Utility
-
-```bash
-# Wipe all circulars from Turso and start fresh
-node scripts/reset-turso.mjs
-```
