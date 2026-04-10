@@ -419,7 +419,7 @@ export default function Home() {
                     No circulars yet
                   </p>
                   <p style={{ fontSize: "13px", color: "#9CA3AF", margin: 0 }}>
-                    Click <strong style={{ color: "#111827" }}>Fetch Now</strong> to pull the latest circulars from RBI and IFSCA and run AI analysis.
+                    Click <strong style={{ color: "#111827" }}>Fetch Now</strong> to pull the latest circulars from RBI and SEBI and run AI analysis.
                   </p>
                 </div>
               ) : (
