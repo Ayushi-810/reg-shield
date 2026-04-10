@@ -60,6 +60,17 @@ function RotatingFetchMessage() {
   );
 }
 
+function timeAgo(date: Date): string {
+  const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
+
 const RELEVANCE_ORDER: RelevanceKey[] = ["HIGH", "MEDIUM", "LOW", "NOT_RELEVANT"];
 const VISIBLE_BY_DEFAULT: RelevanceKey[] = ["HIGH", "MEDIUM", "LOW"];
 
@@ -140,8 +151,11 @@ export default function Home() {
       setLastFetched(now);
       localStorage.setItem("regwatch_last_fetched", now.toISOString());
       const time = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+      const sinceLabel = data.lastDataAt
+        ? ` since last update (${timeAgo(new Date(data.lastDataAt))})`
+        : "";
       const msg = data.newCirculars === 0
-        ? `No new circulars found · ${time}`
+        ? `Checked latest regulatory sources. No new circulars found${sinceLabel}.`
         : `${data.newCirculars} new circulars fetched · ${data.analysed} analysed · ${time}`;
       setFetchStatus({ type: "success", message: msg });
       fetchingRef.current = false;

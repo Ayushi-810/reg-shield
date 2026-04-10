@@ -45,11 +45,17 @@ export async function POST() {
     errors.push("GROQ_API_KEY not set — skipping AI analysis");
   }
 
+  const lastStored = await prisma.circular.findFirst({
+    orderBy: { fetchedAt: "desc" },
+    select: { fetchedAt: true },
+  });
+
   return NextResponse.json({
     fetched: totalFetched,
     newCirculars: totalNew,
     analysed,
     total: await prisma.circular.count(),
+    lastDataAt: lastStored?.fetchedAt ?? null,
     errors,
   });
 }
